@@ -19,7 +19,7 @@ interface ConnectionStatus {
 }
 
 function FirebaseStatus() {
-    const [status, setStatus] = useState<ConnectionStatus>({
+    const [status, setStatus] = useState<ConnectionStatus >({
         firebase: false,
         auth: false,
         firestore: false,
@@ -38,7 +38,7 @@ function FirebaseStatus() {
                 // Firestore 실제 연결 확인 - 서버에 쿼리 시도
                 let firestoreOk = false;
                 try {
-                    await getDocs(query(collection(db, "__connection_test__"), limit(1)));
+                    await getDocs(query(collection(db, "post"), limit(1)));
                     firestoreOk = true;
                 } catch (e) {
                     // 권한 오류(permission-denied)는 "연결은 됨"으로 간주
