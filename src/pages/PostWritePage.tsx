@@ -1,39 +1,56 @@
-// src/pages/PostWritePage.tsx
-
 /**
- * 글쓰기 페이지 (임시)
- * 
+ * 글쓰기 페이지
+ *
  * Day 1 요구사항: POST-001
  * "로그인한 사용자는 새 게시글을 작성할 수 있다"
- * 
- * 실제 글쓰기 기능은 Day 6에서 구현합니다.
- * 지금은 보호된 라우트 테스트용입니다.
+ *
+ * Day 1 사용자 스토리: US-003 (게시글 작성)
  */
 
-import { useAuthStore } from '@/store/authStore';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
+import { createPost } from "@/lib/posts";
+import PostForm from "@/components/PostForm";
+import type { PostInput } from "@/types";
 
 function PostWritePage() {
-  const user = useAuthStore((state) => state.user);
+    const user = useAuthStore((state) => state.user);
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
 
-  return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">
-        새 글 작성
-      </h1>
+    /**
+     * 게시글 작성 핸들러
+     *
+     * Day 1 기능명세서 FUNC-002 결과:
+     * - Firestore posts 컬렉션에 새 문서 생성
+     * - 게시글 목록에 새 글 표시
+     */
+    const handleSubmit = async (data: PostInput) => {
+        if (!user) return;
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600 mb-4">
-          ✅ 이 페이지는 로그인한 사용자만 접근할 수 있습니다.
-        </p>
-        <p className="text-sm text-gray-500">
-          현재 로그인: {user?.email}
-        </p>
-        <p className="text-sm text-gray-400 mt-4">
-          실제 글쓰기 폼은 Day 6에서 구현합니다.
-        </p>
-      </div>
-    </div>
-  );
+        setIsLoading(true);
+        try {
+            const postId = await createPost(data, user);
+
+            // Day 1 기능명세서: 저장 후 작성한 글 페이지로 이동
+            navigate(`/posts/${postId}`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="max-w-2xl mx-auto">
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">
+                새 글 작성
+            </h1>
+
+            <div className="bg-white rounded-lg shadow p-6">
+                <PostForm onSubmit={handleSubmit} isLoading={isLoading} />
+            </div>
+        </div>
+    );
 }
 
 export default PostWritePage;
