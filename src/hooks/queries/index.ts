@@ -1,6 +1,5 @@
-// src/hooks/queries/index.ts
-
-export * from './usePosts';
-export * from './usePost';
-export * from './useInfinitePosts';
-export * from './keys';
+export * from "./usePosts";
+export * from "./usePost";
+export * from "./useComments";
+export * from "./keys";
+export * from "./useInfinitePosts";

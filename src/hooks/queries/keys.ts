@@ -25,4 +25,10 @@ export const queryKeys = {
         // 특정 게시글 상세
         detail: (id: string) => [...queryKeys.posts.details(), id] as const,
     },
+     comments: {
+        all: ["comments"] as const,
+        lists: () => [...queryKeys.comments.all, "list"] as const,
+        list: (postId: string) =>
+            [...queryKeys.comments.lists(), postId] as const,
+    },
 };
