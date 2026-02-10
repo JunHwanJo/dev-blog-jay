@@ -6,7 +6,7 @@ import {
   updateDoc,
   deleteDoc,
   query,
-  orderBy,
+  // orderBy,
   where,
   Timestamp,
 } from "firebase/firestore";
@@ -41,9 +41,7 @@ export async function createComment(
 
 /**
  * 특정 게시글의 댓글 목록 조회 (오래된 순)
- *
- * Firestore 복합 인덱스 필요: postId (Asc) + createdAt (Asc)
- * 첫 쿼리 실행 시 콘솔에 인덱스 생성 링크가 자동으로 표시됩니다.
+ * 정렬은 클라이언트에서 처리합니다.
  */
 export async function getCommentsByPostId(
   postId: string,
@@ -51,12 +49,11 @@ export async function getCommentsByPostId(
   const q = query(
     commentsCollection,
     where("postId", "==", postId),
-    orderBy("createdAt", "asc"),
   );
 
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((doc) => {
+  const comments = snapshot.docs.map((doc) => {
     const data = doc.data();
     return {
       id: doc.id,
@@ -68,6 +65,13 @@ export async function getCommentsByPostId(
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     } as Comment;
+  });
+
+  // 클라이언트에서 생성 시간 순으로 정렬
+  return comments.sort((a, b) => {
+    const timeA = a.createdAt?.toMillis?.() ?? 0;
+    const timeB = b.createdAt?.toMillis?.() ?? 0;
+    return timeA - timeB;
   });
 }
 
